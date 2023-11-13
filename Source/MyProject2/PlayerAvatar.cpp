@@ -13,13 +13,15 @@ void APlayerAvatar::Take(UPotion* PotionItem)
 	PotionItem->PlayPickUpSound(GetActorLocation());
 }
 
-void APlayerAvatar::UsePotion(UPotion* PotionItem)
+void APlayerAvatar::UsePotion()
 {
-	if (!PotionItem) return;
+	if (Inventory.Num() > 0 && health < maxHealth) {
+		UPotion* potion = Inventory[0];
+		if (potion->Drink(this)) {
+			Inventory.Remove(potion);
+		}
 
-	if (PotionItem->Drink(this)) {
-		Inventory.Remove(PotionItem);
-		PotionItem->PlayHealSound(GetActorLocation());
 	}
+	
 
 }

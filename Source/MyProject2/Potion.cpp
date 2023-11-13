@@ -13,12 +13,12 @@ bool UPotion::Drink(APlayerAvatar* avatar)
 {
 	if (!avatar) return false;
 
-	if (avatar->GetPourcentHealth() <= 1.0f && !avatar->IsDead()) {
+	if (!avatar->IsDead()) {
 		avatar->Heal(HealingPercent);
 		return true;
 	}
-	
-	return false;
+	else { return false; }
+
 }
 
 void UPotion::PlayPickUpSound(const FVector& Location)

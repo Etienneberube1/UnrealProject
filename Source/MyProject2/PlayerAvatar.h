@@ -22,7 +22,7 @@ protected:
 	void Take(UPotion* PotionItem);
 
 	UFUNCTION(BlueprintCallable)
-	void UsePotion(UPotion* PotionItem);
+	void UsePotion();
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPotion*> Inventory;

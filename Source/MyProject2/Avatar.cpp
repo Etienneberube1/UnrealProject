@@ -47,10 +47,12 @@ float AAvatar::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContro
 
 void AAvatar::Heal(float healAmount)
 {
-	health += healAmount;
+	health += healAmount * 100.0f;
 	if (health > maxHealth) {
 		health = maxHealth;
+		OnHealthChange();
 	}
+	OnHealthChange();
 }
 
 float AAvatar::GetPourcentHealth() const
