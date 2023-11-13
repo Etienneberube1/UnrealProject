@@ -25,10 +25,14 @@ public:
 
 	void PlayPickUpSound(const FVector& Location);
 
+	void PlayHealSound(const FVector& Location);
+
 protected:
 	float HealingPercent;
 
 	UPROPERTY(EditAnywhere)
 	USoundBase* PickupSound;
+	UPROPERTY(EditAnywhere)
 
+	USoundBase* HealSound;
 };

@@ -31,6 +31,9 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 	virtual void Heal(float healAmount);
+
+	UFUNCTION(BlueprintCallable)
+	float GetPourcentHealth() const;
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnHealthChange();
@@ -38,8 +41,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* DeathMontage;
 
-	UFUNCTION(BlueprintCallable)
-	float GetPourcentHealth() const;
 
 public:	
 	// Called every frame

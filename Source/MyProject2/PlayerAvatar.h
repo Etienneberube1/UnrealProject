@@ -21,6 +21,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Take(UPotion* PotionItem);
 
+	UFUNCTION(BlueprintCallable)
+	void UsePotion(UPotion* PotionItem);
+
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPotion*> Inventory;
 };
