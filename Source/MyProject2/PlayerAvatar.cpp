@@ -20,8 +20,10 @@ void APlayerAvatar::UsePotion()
 		if (potion->Drink(this)) {
 			Inventory.Remove(potion);
 		}
-
 	}
-	
+}
 
+void APlayerAvatar::Interact()
+{
+	OnInteractionEvent.Broadcast();
 }

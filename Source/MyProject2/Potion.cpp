@@ -15,9 +15,11 @@ bool UPotion::Drink(APlayerAvatar* avatar)
 
 	if (!avatar->IsDead()) {
 		avatar->Heal(HealingPercent);
+		PlayHealSound(avatar->GetActorLocation());
 		return true;
 	}
-	else { return false; }
+
+	return false;
 
 }
 
