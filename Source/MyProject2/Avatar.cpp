@@ -2,11 +2,13 @@
 
 
 #include "Avatar.h"
+#include "Weapon.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
 AAvatar::AAvatar()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	health = 0.0f;
@@ -17,14 +19,25 @@ AAvatar::AAvatar()
 void AAvatar::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 
 	// put in player
-	health = maxHealth ;
+	health = maxHealth;
 	OnHealthChange();
 
-	UE_LOG(LogTemp, Warning, TEXT("IsDead = %s"), (IsDead() ? TEXT("True": TEXT("False"))));
+	if (StartingWeaponClass) {
+		UWorld* World = GetWorld();
+		CurrentWeapon = World->SpawnActor<AWeapon>(StartingWeaponClass);
 
+		USkeletalMeshComponent* sm = GetMesh();
+
+		if (sm) {
+			const USkeletalMeshSocket* Socket = sm->GetSocketByName(FName("RightHandSocket"));
+			if (Socket) {
+				Socket->AttachActor(CurrentWeapon, sm);
+			}
+		}
+	}
 }
 
 float AAvatar::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -62,6 +75,34 @@ float AAvatar::GetPourcentHealth() const
 		return 0.0f;
 	}
 	return health / maxHealth;
+}
+
+void AAvatar::BeginAttack()
+{
+	if (CurrentWeapon) {
+		CurrentWeapon->BeginDamage(this);
+	}
+}
+
+void AAvatar::EndAttack()
+{
+	if (CurrentWeapon) {
+		CurrentWeapon->EndDamage();
+	}
+
+}
+
+void AAvatar::NormalAttack()
+{
+	if (AttackMontage) {
+		UAnimInstance* anim = GetMesh()->GetAnimInstance();
+		if (anim) {
+			if (DeathMontage) {
+				anim->Montage_Play(AttackMontage);
+				anim->Montage_JumpToSection(FName("Normal"));
+			}
+		}
+	}
 }
 
 // Called every frame

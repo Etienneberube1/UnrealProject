@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Avatar.generated.h"
 
+class AWeapon;
 
 UCLASS()
 class MYPROJECT2_API AAvatar : public ACharacter
@@ -41,6 +42,23 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* DeathMontage;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY()
+	AWeapon* CurrentWeapon;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> StartingWeaponClass;
+
+	UFUNCTION(BlueprintCallable)
+	void BeginAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void EndAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void NormalAttack();
 
 public:	
 	// Called every frame
