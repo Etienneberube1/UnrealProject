@@ -5,10 +5,13 @@
 #include "NavigationSystem.h" 
 #include "AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerAvatar.h"
+
 
 void AAIAvatar::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrentTarget = nullptr; 
 	SpawnLocation = GetActorLocation();
 	EnterIdleState();
 }
@@ -46,8 +49,74 @@ void AAIAvatar::Tick(float DeltaTime)
 		DrawDebugSphere(world, SpawnLocation, MaxWanderRange, 12, FColor::Yellow);
 		DrawDebugSphere(world, WanderDestination, StoppingDistance, 12, FColor::Blue);
 		DrawDebugLine(world, GetActorLocation(), WanderDestination, FColor::Blue);
+
+		if (HasTarget() && CanSeeTarget())
+		{
+			DrawDebugSphere(world, CurrentTarget->GetActorLocation(), 20.0f, 12, FColor::Red);
+			DrawDebugLine(world, GetActorLocation(), CurrentTarget->GetActorLocation(), FColor::Blue);
+
+		}
 	}
 }
+
+
+
+
+
+void AAIAvatar::OnEnterPerception(APlayerAvatar* other)
+{
+	if (other)
+	{
+		if (!HasTarget())
+		{
+			CurrentTarget = other;
+		}
+	}
+}
+
+void AAIAvatar::OnExitPerception(APlayerAvatar* other)
+{
+	if (other)
+	{
+		if (HasTarget() && CurrentTarget == other)
+		{
+			CurrentTarget = nullptr;
+		}
+	}
+}
+
+bool AAIAvatar::HasTarget() const
+{
+	return CurrentTarget != nullptr;
+}
+
+bool AAIAvatar::CanSeeTarget() const
+{
+	if (!HasTarget()) return false;
+	if (IsDead()) return false;
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+
+	FVector LineStart = GetActorLocation();
+	FVector LineEnd  = CurrentTarget->GetActorLocation();
+
+	UWorld* world = GetWorld();
+
+	if (world->LineTraceSingleByChannel(HitResult, LineStart, LineEnd, ECC_Pawn, QueryParam))
+	{
+		return HitResult.GetActor() == CurrentTarget;
+	}
+
+	
+
+	return false;
+}
+
+
+
+
 
 void AAIAvatar::EnterIdleState()
 {
@@ -84,12 +153,34 @@ void AAIAvatar::EnterWanderState()
 
 void AAIAvatar::EnterChaseState()
 {
+
+	AAIController* AiController = Cast<AAIController>(GetController());
+	if (AiController)
+	{
+		AiController->MoveToLocation(CurrentTarget->GetActorLocation());
+		SetRunSpeed();
+	}
+	else
+	{
+		
+		EnterWanderState();
+	}
+
 	CurrentState = EAIState::AI_Chase;
+
 }
 
 void AAIAvatar::EnterAttackState()
 {
 	CurrentState = EAIState::AI_Attack;
+	AAIController* AiController = Cast<AAIController>(GetController());
+	if (AiController)
+	{
+		AiController->StopMovement();
+		NormalAttack();
+
+	}
+
 }
 
 void AAIAvatar::EnterReturnState()
@@ -122,6 +213,39 @@ void AAIAvatar::UpdateWanderState(float DeltaTime)
 	{
 		EnterIdleState();
 	}
+
+	if (HasTarget() && !IsDead())
+	{
+		EnterChaseState();
+	}
+}
+
+void AAIAvatar::UpdateChaseState(float DeltaTime)
+{
+	const float Distance = FVector::Distance(GetActorLocation(), CurrentTarget->GetActorLocation());
+
+	if (Distance <= StoppingDistance)
+	{
+		EnterAttackState();
+	}
+	else
+	{
+		AAIController* AiController = Cast<AAIController>(GetController());
+		if (AiController)
+		{
+			AiController->MoveToLocation(CurrentTarget->GetActorLocation());
+		}
+
+	}
+
+	if(!HasTarget())
+	{
+		EnterIdleState();
+	}
+}
+
+void AAIAvatar::UpdateAttackState(float DeltaTime)
+{
 }
 
 FVector AAIAvatar::PickRandomDestination(const FVector& Center, const float Range)

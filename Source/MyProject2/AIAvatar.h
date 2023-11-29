@@ -17,6 +17,8 @@ enum class EAIState : uint8
 	AI_Death
 };
 
+class APlayerAvatar;
+
 UCLASS()
 class MYPROJECT2_API AAIAvatar : public AAvatar
 {
@@ -25,6 +27,16 @@ protected:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	
+	UFUNCTION(blueprintCallable)
+	void OnEnterPerception(APlayerAvatar* other);
+
+	UFUNCTION(blueprintCallable)
+	void OnExitPerception(APlayerAvatar* other);
+
+	bool HasTarget() const;
+
+	bool CanSeeTarget() const;
 
 	void EnterIdleState();
 	void EnterWanderState();
@@ -35,6 +47,8 @@ protected:
 
 	void UpdateIdleState(float DeltaTime);
 	void UpdateWanderState(float DeltaTime);
+	void UpdateChaseState(float DeltaTime);
+	void UpdateAttackState(float DeltaTime);
 
 
 	FVector PickRandomDestination(const FVector& Center, const float Range);
@@ -80,4 +94,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bIsDebug = false;
 
+private:
+
+	UPROPERTY()
+	APlayerAvatar* CurrentTarget;
 };
