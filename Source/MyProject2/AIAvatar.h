@@ -49,6 +49,8 @@ protected:
 	void UpdateWanderState(float DeltaTime);
 	void UpdateChaseState(float DeltaTime);
 	void UpdateAttackState(float DeltaTime);
+	void UpdateReturnState(float DeltaTime);
+	void UpdateDeathState(float DeltaTime);
 
 
 	FVector PickRandomDestination(const FVector& Center, const float Range);
